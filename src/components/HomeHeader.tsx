@@ -1,19 +1,17 @@
 import React from "react";
 
-export type HomeHeaderProps = {
+interface HomeHeaderProps {
     title: string;
-    description: string;
-};
+    subHeading?: string;
+}
 
-const HomeHeader: React.FC<HomeHeaderProps> = React.memo(
-    ({ title, description }) => {
-        return (
-            <header>
-                <h1>{title}</h1>
-                <h3>{description}</h3>
-            </header>
-        );
-    }
-);
+const HomeHeader: React.FC<HomeHeaderProps> = ({ title, subHeading }) => {
+    return (
+        <header>
+            <h1>{title}</h1>
+            {subHeading && <p>{subHeading}</p>}
+        </header>
+    );
+};
 
 export default HomeHeader;

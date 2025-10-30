@@ -1,20 +1,14 @@
 import './App.css'
-import HomeHeader from './components/HomeHeader'
-import type { HomeHeaderProps } from './components/HomeHeader';
-
-const headerProps: HomeHeaderProps = {
-  title: "Card Collection",
-  description: "Track your card collection"
-};
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Home from './pages/Home'
 
 function App() {
   return (
-    <>
-      <HomeHeader 
-      title={headerProps.title}
-      description={headerProps.description}>
-      </HomeHeader>
-    </>
+    <Router>
+      <Routes>
+        <Route path='/' element={<Home />} />
+      </Routes>
+    </Router>
   )
 }
 
