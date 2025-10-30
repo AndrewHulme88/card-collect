@@ -1,15 +1,19 @@
 import './App.css'
+import HomeHeader from './components/HomeHeader'
+import type { HomeHeaderProps } from './components/HomeHeader';
+
+const headerProps: HomeHeaderProps = {
+  title: "Card Collection",
+  description: "Track your card collection"
+};
 
 function App() {
-
   return (
     <>
-      <div>
-        <h1>Card Collector</h1>
-      </div>
-      <div>
-        <h3>Track your collection</h3>
-      </div>
+      <HomeHeader 
+      title={headerProps.title}
+      description={headerProps.description}>
+      </HomeHeader>
     </>
   )
 }
