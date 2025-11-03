@@ -10,6 +10,7 @@ const Navbar: React.FC = () => {
                     <li>
                         <Link to="/">Home</Link>
                         <Link to="/set/:setId">Card Sets</Link>
+                        <Link to="/set/base1">View Base Set</Link>
                     </li>
                 </ul>
             </div>
