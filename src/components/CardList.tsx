@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import type { PokemonCard } from "../types/types";
+import '../styles/CardList.css';
 
 interface CardListProps {
   setId: string;
@@ -11,7 +12,7 @@ const CardList: React.FC<CardListProps> = ({ setId }) => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const pageSize = 20;
+  const pageSize = 150;
 
   const fetchCards = async (pageNumber: number) => {
     setLoading(true);
@@ -19,6 +20,7 @@ const CardList: React.FC<CardListProps> = ({ setId }) => {
         const res = await axios.get(
             `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${pageNumber}&pageSize=${pageSize}`
         );
+        console.log("API Response:", res.data);
         setCards((prevCards) => [...prevCards, ...res.data.data]);
         setTotalCount(res.data.totalCount);
     } catch (error) {
@@ -51,16 +53,16 @@ const CardList: React.FC<CardListProps> = ({ setId }) => {
 
   return (
     <div className="p-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="card-grid">
         {cards.map((card) => (
-          <div key={card.id} className="shadow rounded p-2 bg-white">
+          <div key={card.id} className="card-item">
             <img
               src={card.images.small}
               alt={card.name}
               loading="lazy"
-              className="w-full rounded"
+              className="card-image"
             />
-            <p className="text-center mt-2">{card.name}</p>
+            <p className="card-name">{card.name}</p>
           </div>
         ))}
       </div>
