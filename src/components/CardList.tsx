@@ -12,16 +12,26 @@ const CardList: React.FC<CardListProps> = ({ setId }) => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const pageSize = 150;
+  const pageSize = 100;
 
   const fetchCards = async (pageNumber: number) => {
+    const cacheKey = `cards-${setId}-page-${pageNumber}`;
+    const cachedData = localStorage.getItem(cacheKey);
+
+    if (cachedData) {
+      setCards((prevCards) => [...prevCards, ...JSON.parse(cachedData)]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
         const res = await axios.get(
-            `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${pageNumber}&pageSize=${pageSize}`
+            `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${pageNumber}&pageSize=${pageSize}&fields=id,name,images`
         );
-        console.log("API Response:", res.data);
-        setCards((prevCards) => [...prevCards, ...res.data.data]);
+        const fetchedData = res.data.data;
+        localStorage.setItem(cacheKey, JSON.stringify(fetchedData));
+        setCards((prevCards) => [...prevCards, ...fetchedData]);
         setTotalCount(res.data.totalCount);
     } catch (error) {
         console.error(error);
@@ -30,10 +40,25 @@ const CardList: React.FC<CardListProps> = ({ setId }) => {
     }
   };
 
+  // Fetch cards when setId or page changes
   useEffect(() => {
     fetchCards(page);
   }, [setId, page]);
 
+  // Clear cache when setId changes
+  useEffect(() => {
+    try {
+      for (const key of Object.keys(localStorage)) {
+        if (key.startsWith("cards-") && !key.includes(setId)) {
+          localStorage.removeItem(key);
+        }
+      }
+    } catch (error) {
+      console.error("Error cleaning cache:", error);
+    }
+  }, [setId]);
+
+  // Infinite scrolling logic
   useEffect(() => {
     const handleScroll = () => {
       if (
@@ -54,8 +79,8 @@ const CardList: React.FC<CardListProps> = ({ setId }) => {
   return (
     <div className="p-4">
       <div className="card-grid">
-        {cards.map((card) => (
-          <div key={card.id} className="card-item">
+        {cards.map((card, index) => (
+          <div key={`${card.id}-${index}`} className="card-item">
             <img
               src={card.images.small}
               alt={card.name}
