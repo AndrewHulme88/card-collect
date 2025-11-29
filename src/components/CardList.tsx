@@ -19,7 +19,7 @@ const CardList: React.FC<CardListProps> = ({ setId }) => {
         const res = await axios.get(
             `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${pageNumber}&pageSize=${pageSize}`
         );
-        setCards(res.data.data);
+        setCards((prevCards) => [...prevCards, ...res.data.data]);
         setTotalCount(res.data.totalCount);
     } catch (error) {
         console.error(error);
@@ -32,7 +32,20 @@ const CardList: React.FC<CardListProps> = ({ setId }) => {
     fetchCards(page);
   }, [setId, page]);
 
-  if (loading) return <p>Loading cards...</p>;
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
+        !loading &&
+        page < Math.ceil(totalCount / pageSize)
+      ) {
+        setPage((prevPage) => prevPage + 1);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [loading, page, totalCount]);
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
