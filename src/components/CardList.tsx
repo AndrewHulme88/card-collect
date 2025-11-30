@@ -15,30 +15,45 @@ const CardList: React.FC<CardListProps> = ({ setId }) => {
   const pageSize = 100;
 
   const fetchCards = async (pageNumber: number) => {
-    const cacheKey = `cards-${setId}-page-${pageNumber}`;
-    const cachedData = localStorage.getItem(cacheKey);
+  const cacheKey = `cards-${setId}-page-${pageNumber}`;
+  const cachedData = localStorage.getItem(cacheKey);
 
-    if (cachedData) {
-      setCards((prevCards) => [...prevCards, ...JSON.parse(cachedData)]);
-      setLoading(false);
-      return;
-    }
+  if (cachedData) {
+    const parsedData = JSON.parse(cachedData);
+    console.log("Cached Data:", parsedData); // Log cached data
+    setCards((prevCards) => {
+      const uniqueCards = [...prevCards, ...parsedData].filter(
+        (card, index, self) =>
+          index === self.findIndex((c) => c.id === card.id)
+      );
+      return uniqueCards;
+    });
+    setLoading(false);
+    return;
+  }
 
-    setLoading(true);
-    try {
-        const res = await axios.get(
-            `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${pageNumber}&pageSize=${pageSize}&fields=id,name,images`
-        );
-        const fetchedData = res.data.data;
-        localStorage.setItem(cacheKey, JSON.stringify(fetchedData));
-        setCards((prevCards) => [...prevCards, ...fetchedData]);
-        setTotalCount(res.data.totalCount);
-    } catch (error) {
-        console.error(error);
-    } finally {
-        setLoading(false);
-    }
-  };
+  setLoading(true);
+  try {
+    const res = await axios.get(
+      `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${pageNumber}&pageSize=${pageSize}&fields=id,name,images`
+    );
+    console.log("Fetched Data:", res.data.data); // Log fetched data
+    const fetchedData = res.data.data;
+    localStorage.setItem(cacheKey, JSON.stringify(fetchedData));
+    setCards((prevCards) => {
+      const uniqueCards = [...prevCards, ...fetchedData].filter(
+        (card, index, self) =>
+          index === self.findIndex((c) => c.id === card.id)
+      );
+      return uniqueCards;
+    });
+    setTotalCount(res.data.totalCount);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Fetch cards when setId or page changes
   useEffect(() => {
